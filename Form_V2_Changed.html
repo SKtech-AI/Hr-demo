@@ -1,4 +1,4 @@
-v2 = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -14,8 +14,8 @@ v2 = '''<!DOCTYPE html>
       --color-divider: #e8e5e0; --color-text: #1e2533; --color-text-muted: #6b7280;
       --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-light: #e4f2f2;
       --color-error: #b91c1c; --color-success-bg: #ecfdf5; --color-success-text: #065f46;
-      --color-success-border: #6ee7b7; --font-body: \'Inter\', sans-serif;
-      --font-display: \'Instrument Serif\', Georgia, serif; --radius-md: 0.5rem;
+      --color-success-border: #6ee7b7; --font-body: 'Inter', sans-serif;
+      --font-display: 'Instrument Serif', Georgia, serif; --radius-md: 0.5rem;
       --radius-lg: 0.75rem; --radius-xl: 1rem;
       --shadow-md: 0 4px 20px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05);
       --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -39,7 +39,7 @@ v2 = '''<!DOCTYPE html>
     label { font-size: 0.8125rem; font-weight: 600; color: var(--color-text); }
     .req { color: var(--color-error); margin-left: 2px; }
     input[type="text"], input[type="date"], select { width: 100%; padding: 0.625rem 0.875rem; font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-text); background: #f9fafb; border: 1px solid var(--color-border); border-radius: var(--radius-md); outline: none; appearance: none; -webkit-appearance: none; transition: border-color var(--transition), box-shadow var(--transition), background var(--transition); }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%236b7280\' stroke-width=\'1.5\' fill=\'none\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.875rem center; padding-right: 2.5rem; }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.875rem center; padding-right: 2.5rem; }
     input:focus, select:focus { border-color: var(--color-primary); background: #fff; box-shadow: 0 0 0 3px var(--color-primary-light); }
     input::placeholder { color: #9ca3af; font-size: 0.875rem; }
     .field-hint { font-size: 0.74rem; color: var(--color-text-muted); }
@@ -58,6 +58,7 @@ v2 = '''<!DOCTYPE html>
   </style>
 </head>
 <body>
+
 <header class="site-header">
   <a href="#" class="logo" aria-label="HR Portal">
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -85,26 +86,48 @@ v2 = '''<!DOCTYPE html>
           <button type="submit" id="submitFormBtn" class="btn-submit">Submit Record</button>
         </div>
 
-        <!-- Hidden dummy input — breaks PAD position-based (input[1]) selector -->
-        <div style="display:none;" aria-hidden="true">
-          <input type="text" id="trapField" name="trapField" tabindex="-1" autocomplete="off" />
+        <!-- PAD TRAP: Visible to DOM and automation tools, invisible to users.
+             Breaks PAD position-based fallback — input[1] now hits this trap, not givenName. -->
+        <div style="position:absolute; opacity:0; height:0; overflow:hidden; pointer-events:none;" aria-hidden="true">
+          <input type="text" id="trapField" name="trapField" autocomplete="off" tabindex="-1" />
         </div>
 
         <div class="form-grid">
 
-          <!-- CHANGE 1: id/name firstName → givenName -->
+          <!-- CHANGE 1: id="firstName" → id="givenName"
+                         name="firstName" → name="givenName"
+                         placeholder="e.g. Sarah" → placeholder="Your given name"
+                         autocomplete="given-name" → autocomplete="off"
+               All four PAD fallback attributes now differ from V1.
+               PAD has nothing to match against — hard stop expected here. -->
           <div class="form-group">
             <label for="givenName">Given Name <span class="req">*</span></label>
-            <input type="text" id="givenName" name="givenName" placeholder="e.g. Sarah" autocomplete="given-name" required />
+            <input type="text"
+                   id="givenName"
+                   name="givenName"
+                   placeholder="Your given name"
+                   autocomplete="off"
+                   required />
           </div>
 
-          <!-- CHANGE 2: id/name lastName → familyName -->
+          <!-- CHANGE 2: id="lastName" → id="familyName"
+                         name="lastName" → name="familyName"
+                         placeholder="e.g. Mitchell" → placeholder="Your family name"
+                         autocomplete="family-name" → autocomplete="off"
+               All four PAD fallback attributes now differ from V1.
+               PAD has nothing to match against — hard stop expected here. -->
           <div class="form-group">
             <label for="familyName">Family Name <span class="req">*</span></label>
-            <input type="text" id="familyName" name="familyName" placeholder="e.g. Mitchell" autocomplete="family-name" required />
+            <input type="text"
+                   id="familyName"
+                   name="familyName"
+                   placeholder="Your family name"
+                   autocomplete="off"
+                   required />
           </div>
 
-          <!-- CHANGE 4: NEW Office Location field inserted before Department -->
+          <!-- CHANGE 4: NEW required field — Office Location added before Department.
+               PAD recorded no action for this field. Form validation will block submission. -->
           <div class="form-group full-width">
             <label for="officeLocation">Office Location <span class="req">*</span></label>
             <select id="officeLocation" name="officeLocation" required>
@@ -118,7 +141,9 @@ v2 = '''<!DOCTYPE html>
             </select>
           </div>
 
-          <!-- CHANGE 3: Department options REORDERED -->
+          <!-- CHANGE 3: Department options REORDERED.
+               V1: Engineering at index 1. V2: Sales at index 1.
+               PAD selects by index position → silently picks "Sales" instead of "Engineering". -->
           <div class="form-group full-width">
             <label for="department">Department <span class="req">*</span></label>
             <select id="department" name="department" required>
@@ -171,35 +196,31 @@ v2 = '''<!DOCTYPE html>
 </footer>
 
 <script>
-  const form = document.getElementById(\'onboardingForm\');
-  const banner = document.getElementById(\'confirmationBanner\');
-  const detail = document.getElementById(\'confirmationDetail\');
+  const form   = document.getElementById('onboardingForm');
+  const banner = document.getElementById('confirmationBanner');
+  const detail = document.getElementById('confirmationDetail');
 
-  form.addEventListener(\'submit\', function(e) {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
-    const givenName      = document.getElementById(\'givenName\').value.trim();
-    const familyName     = document.getElementById(\'familyName\').value.trim();
-    const officeLocation = document.getElementById(\'officeLocation\').value;
-    const department     = document.getElementById(\'department\').value;
-    const startDate      = document.getElementById(\'startDate\').value;
-    const employeeId     = document.getElementById(\'employeeId\').value.trim();
+    const givenName      = document.getElementById('givenName').value.trim();
+    const familyName     = document.getElementById('familyName').value.trim();
+    const officeLocation = document.getElementById('officeLocation').value;
+    const department     = document.getElementById('department').value;
+    const startDate      = document.getElementById('startDate').value;
+    const employeeId     = document.getElementById('employeeId').value.trim();
 
     if (!givenName || !familyName || !officeLocation || !department || !startDate || !employeeId) {
-      alert(\'Please fill in all required fields before submitting.\');
+      alert('Please fill in all required fields before submitting.');
       return;
     }
 
-    detail.textContent = givenName + \' \' + familyName + \' (\' + employeeId + \') registered in \' + department + \' at \' + officeLocation + \', starting \' + startDate + \'.\';
-    banner.classList.add(\'visible\');
-    document.title = \'Submitted — HR Portal\';
-    banner.scrollIntoView({ behavior: \'smooth\', block: \'nearest\' });
+    detail.textContent = givenName + ' ' + familyName + ' (' + employeeId + ') registered in '
+                       + department + ' at ' + officeLocation + ', starting ' + startDate + '.';
+    banner.classList.add('visible');
+    document.title = 'Submitted — HR Portal';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 </script>
 
 </body>
-</html>'''
-
-with open('/tmp/Form_V2_Changed.html', 'w') as f:
-    f.write(v2)
-
-print("V2 written")
+</html>
